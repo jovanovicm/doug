@@ -8,7 +8,9 @@ from openai import OpenAI
 from config import LICHESS_API_TOKEN, OPENAI_API_TOKEN
 import pygame
 
-# AUDIO
+# AUDIO #
+# Thanks to https://github.com/ggoonnzzaallo/llm_experiments for the streamed text + audio solution
+
 pygame.mixer.init()
 
 is_first_audio_played = False  # Flag to check if the first audio has been played
@@ -18,7 +20,7 @@ audio_generation_queue = queue.Queue()
 audio_playback_queue = queue.Queue()
 
 
-#CHESS CLIENT
+# CHESS CLIENT #
 session = berserk.TokenSession(LICHESS_API_TOKEN)
 client = berserk.Client(session=session)
 
@@ -31,7 +33,7 @@ player_colour = ''
 previous_score = None # Scoring from Stockfish
 enable_random = False
 
-#OPENAI CLIENT
+# OPENAI CLIENT #
 aiclient = OpenAI(api_key=OPENAI_API_TOKEN)
 
 
@@ -45,13 +47,10 @@ def process_audio_generation_queue():
         audio_generation_queue.task_done()
 
 def process_audio_playback_queue():
-    #time.sleep(10) #Debug Only
     while True:
         audio_file_path = audio_playback_queue.get()
         if audio_file_path is None:
-            #print("No audio file path found") #Debug Only
             break
-        #print(audio_file_path) #Debug Only
         play_audio(audio_file_path)
         audio_playback_queue.task_done()
 
@@ -65,7 +64,7 @@ audio_playback_thread.start()
 def generate_audio(input_text, model='tts-1', voice='onyx'):
     url = "https://api.openai.com/v1/audio/speech"
     headers = {
-        "Authorization": f'Bearer {OPENAI_API_TOKEN}'  # Replace with your actual API key
+        "Authorization": f'Bearer {OPENAI_API_TOKEN}'
     }
     data = {
         "model": model,
@@ -80,7 +79,6 @@ def generate_audio(input_text, model='tts-1', voice='onyx'):
             with tempfile.NamedTemporaryFile(delete=False, suffix='.opus') as temp_file:
                 for chunk in response.iter_content(chunk_size=4096):
                     temp_file.write(chunk)
-                #print(temp_file.name) #Debug Only
                 return temp_file.name
         else:
             print(f"Error: {response.status_code} - {response.text}")
@@ -88,10 +86,6 @@ def generate_audio(input_text, model='tts-1', voice='onyx'):
 
 def play_audio(audio_file_path):
     if audio_file_path:
-        # Calculate the time elapsed since the start of the script
-        #elapsed_time = time.time() - start_time
-        #print(f"Time taken to start playing audio clip: {elapsed_time} seconds")
-        #print("Attempting to play audio.") #Debug Only
         with sf.SoundFile(audio_file_path, 'r') as sound_file:
             audio = pyaudio.PyAudio()
             stream = audio.open(format=pyaudio.paInt16, channels=sound_file.channels, rate=sound_file.samplerate, output=True)
@@ -131,7 +125,6 @@ def generate_text(prompt):
                     if sentence and sentence not in sentences:
                         sentences.append(sentence)
                         audio_generation_queue.put(sentence)
-                        print(f"Queued sentence: {sentence}")  # Logging queued sentence
                     sentence = ''
     return sentences
 
@@ -225,15 +218,11 @@ while True:
         current_board_stream = client.board.stream_game_state(game_id)
 
         for game_state in current_board_stream:
-            #print(game_state)
-
             if 'white' in game_state:
                 if 'aiLevel' in game_state['white']:
                     player_colour = 'black'
                 else:
                     player_colour = 'white'
-            
-            #print(player_colour)
 
             if game_state.get('status') in ['resign', 'mate', 'stalemate']:
                 print('Game done.')
@@ -251,21 +240,8 @@ while True:
 
                     # Convert UCI to SAN before making the move
                     san_move = emulated_board.san(chess.Move.from_uci(last_move))
-
-                    # LAST PLAYER MOVE INFO
-                    # TEST METHOD FOR INCREASING CHATGPT KNOWLEDGE OF GAME
-                    # Check if the last move was made by the player
-                    if (emulated_board.turn and player_colour == 'white') or (not emulated_board.turn and player_colour == 'black'):
-                        last_player_move.append(san_move)
-
-                    # Keep array to be length 1
-                    if len(last_player_move) > 1:
-                        last_player_move.pop(0)
-                    #print(last_player_move)
-                    ######################################################
                                     
                     recent_moves.append(san_move)
-                    #print(move_san)
 
                     # Only referencing last 3 moves for recent moves
                     if len(recent_moves) > 3:
@@ -278,19 +254,9 @@ while True:
 
                     emulated_board.push_uci(last_move)
 
-                    # TEST METHOD FOR INCREASING CHATGPT KNOWLEDGE OF GAME
-                    # Get the top 3 moves from Stockfish and convert them to SAN
-                    top_3_moves_san = get_top_3_moves(emulated_board)
-
-                    # Format the moves into a string
-                    formatted_moves = ", ".join([f"{i+1}{'st' if i == 0 else 'nd' if i == 1 else 'rd'} best: {move}" for i, move in enumerate(top_3_moves_san)])
-                    print("Top 3 moves:", formatted_moves)
-                    ######################################################
-
                     # Evaluate the position after making the move
                     new_analysis_info = engine.analyse(emulated_board, chess.engine.Limit(depth=5))
                     new_score = new_analysis_info.get("score")
-                    #print(new_score)
 
                     # Evaluating moves based off of change in centipawn score using Stockfish
                     if emulated_board.turn:  # White turn
@@ -300,8 +266,6 @@ while True:
                          change_in_evaluation = new_score.white().score(mate_score=10000) - previous_score.white().score(mate_score=10000)
 
                     move_classification = classify_move(change_in_evaluation)
-                    #print(f"Move classification: {move_classification}")
-
                     previous_score = new_score
 
                     commentate(player_colour, 0.5)

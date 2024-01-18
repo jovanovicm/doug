@@ -1,0 +1,7 @@
+berserk
+requests
+pyaudio
+soundfile
+chess
+pygame
+openai

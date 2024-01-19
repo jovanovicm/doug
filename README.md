@@ -20,7 +20,7 @@ Doug does not hold back on the trash talk, and will make you regret every bad mo
   - [Challenges and Solutions](#challenges-and-solutions)
     - [Issues with the Lichess API](#issues-with-the-lichess-api)
     - [Introducing more context](#introducing-more-context)
-- **[Pending Improvements](pending=improvements)**
+- **[Pending Work and Improvements](pending-work-and-improvements)**
 
 ## How to Use
 ### Prerequisites
@@ -74,7 +74,7 @@ For example, `e2e4` means that the piece previously on e2 has moved to e4. Since
 Another issue with referencing this sequence of moves is that it becomes very long in the end game, which increases the length of the prompt, therefore increasing the amount of time needed to get a response from the OpenAI API.
 
 #### Introducing more context
-To help out with the issue of hallucinations, we must introduce more context related to the moves made, and the state of the game. To do this, I use the `chess` library for python to emulate the chess game being played on Lichess within our code. Using this library, we can convert the LAN moves to a more informative notation, the Short Algebraic Notation (SAN), which includes the context of the piece being moved and what it is doing. 
+To help out with the issue of hallucinations, we must introduce more context related to the moves made, and the state of the game. To do this, I use the `chess` library for python to emulate the chess game being played on Lichess within our code. Using this library, we can convert the LAN moves to a more informative notation, the Short Algebraic Notation (SAN), which includes the context of the piece being moved and what it is doing (ex. Checks, Captures, Castling). 
 
 >**Example of SAN**:
 >
@@ -105,5 +105,15 @@ Stockfish is also integrated alongside the game to give proper game analysis, an
 >[!NOTE]
 >Since OpenAI API calls do not reference previous API calls for context, prompts must convey the momentum of the game
 
-## Pending Improvements
-
+## Pending Work and Improvements
+- Doug says 'Typical' too much for moves classified as 'normal'
+- Needs commentary for moves classified as 'good'
+- Need to reduce size of overall commentary
+  - "under 1 completion token" in prompt not working as good as needed
+- Need to change perspective and personality in the prompts to better fit the 'Doug' persona
+  - Introduce computer colour in prompt context
+    - "You are Doug, playing as {computer_colour}"
+- Commentary should be more randomized
+- Need to experiment with 'Top 3 best moves' context using Stockfish
+  - Or give "Top 3 move sequences" to improve commentary and reduce hallucination
+  

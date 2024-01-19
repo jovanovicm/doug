@@ -16,7 +16,6 @@ Doug does not hold back on the trash talk, and will make you regret every bad mo
   - [Known Issues](#known-issues)
 - **[Methodology](#methodology)**
   - [What led to the creation of Doug?](#what-led-to-the-creation-of-doug)
-  - [What led to the creation of Doug?](#what-led-to-the-creation-of-doug)
   - [How does Doug work?](#how-does-doug-work)
   - [Challenges and Solutions in Developing Doug](#challenges-and-solutions-in-developing-doug)
     - [Issues with the Lichess API](#issues-with-the-lichess-api)

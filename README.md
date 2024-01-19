@@ -57,7 +57,7 @@ ChatGPT helped a lot...
 
 ### How does Doug work?
 Doug uses the Lichess API to get real-time information about your chess games. It then feeds this information into a prompt used by the OpenAI API to generate a text-based analysis of the game. 
-This text-based analysis is then sent to a text-to-speech model, again using the OpenAI API, which then outputs Doug's commentary.
+This text-based analysis is then streamed to a text-to-speech model, again using the OpenAI API, which then streams the output of Doug's commentary.
 
 ### Challenges and Solutions
 Since ChatGPT is known to hallucinate, [especially while playing and interpreting chess games](https://twitter.com/JoINrbs/status/1624351822621315072?lang=en), you need to provide a lot of context within each prompt for an appropriate analysis to happen.

@@ -20,7 +20,7 @@ Doug does not hold back on the trash talk, and will make you regret every bad mo
   - [Challenges and Solutions](#challenges-and-solutions)
     - [Issues with the Lichess API](#issues-with-the-lichess-api)
     - [Introducing more context](#introducing-more-context)
-- **[Pending Work and Improvements](pending-work-and-improvements)**
+- **[Pending Work and Improvements](#pending-work-and-improvements)**
 
 ## How to Use
 ### Prerequisites

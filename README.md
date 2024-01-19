@@ -17,9 +17,10 @@ Doug does not hold back on the trash talk, and will make you regret every bad mo
 - **[Methodology](#methodology)**
   - [What led to the creation of Doug?](#what-led-to-the-creation-of-doug)
   - [How does Doug work?](#how-does-doug-work)
-  - [Challenges and Solutions in Developing Doug](#challenges-and-solutions-in-developing-doug)
+  - [Challenges and Solutions](#challenges-and-solutions)
     - [Issues with the Lichess API](#issues-with-the-lichess-api)
     - [Introducing more context](#introducing-more-context)
+- **[Pending Improvements](pending=improvements)**
 
 ## How to Use
 ### Prerequisites
@@ -58,7 +59,7 @@ ChatGPT helped a lot...
 Doug uses the Lichess API to get real-time information about your chess games. It then feeds this information into a prompt used by the OpenAI API to generate a text-based analysis of the game. 
 This text-based analysis is then sent to a text-to-speech model, again using the OpenAI API, which then outputs Doug's commentary.
 
-### Challenges and Solutions in Developing Doug
+### Challenges and Solutions
 Since ChatGPT is known to hallucinate, [especially while playing and interpreting chess games](https://twitter.com/JoINrbs/status/1624351822621315072?lang=en), you need to provide a lot of context within each prompt for an appropriate analysis to happen.
 
 #### Issues with the Lichess API
@@ -103,3 +104,6 @@ Stockfish is also integrated alongside the game to give proper game analysis, an
 
 >[!NOTE]
 >Since OpenAI API calls do not reference previous API calls for context, prompts must convey the momentum of the game
+
+## Pending Improvements
+

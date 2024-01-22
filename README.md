@@ -106,6 +106,7 @@ Stockfish is also integrated alongside the game to give proper game analysis, an
 >Since OpenAI API calls do not reference previous API calls for context, prompts must convey the momentum of the game
 
 ## Pending Work and Improvements
+- Need to upload video of Doug in a game
 - Doug says 'Typical' too much for moves classified as 'normal'
 - Needs commentary for moves classified as 'good'
 - Need to reduce size of overall commentary

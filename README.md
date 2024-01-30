@@ -70,8 +70,6 @@ pip install -r requirements.txt
 ### What led to the creation of Doug?
 I wanted to create something that I would enjoy using while also investigating the uses of Generative AI. I also used this project as an opportunity to improve my Python skills and overall code development ability.
 
-ChatGPT helped a lot...
-
 ### How does Doug work?
 Doug uses the Lichess API to get real-time information about your chess games. It then feeds this information into a prompt used by the OpenAI API to generate a text-based analysis of the game. 
 This text-based analysis is then streamed to a text-to-speech model, again using the OpenAI API, which then streams the output of Doug's commentary.

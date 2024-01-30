@@ -9,6 +9,16 @@ He has become famous for his vocal style of play across the board.
 
 Doug does not hold back on the trash talk, and will make you regret every bad move you make.
 
+### A Video of Doug in Action
+>[!TIP]
+>Make sure to unmute the video before playing! 
+
+https://github.com/jovanovicm/doug/assets/71355061/65112c92-399d-45eb-a4d0-42687573facd
+
+
+
+
+
 ### Table of Contents
 - **[How to Use Doug](#how-to-use)**
   - [Prerequisites](#prerequisites)
@@ -106,15 +116,8 @@ Stockfish is also integrated alongside the game to give proper game analysis, an
 >Since OpenAI API calls do not reference previous API calls for context, prompts must convey the momentum of the game
 
 ## Pending Work and Improvements
-- Need to upload video of Doug in a game
-- Doug says 'Typical' too much for moves classified as 'normal'
-- Needs commentary for moves classified as 'good'
-- Need to reduce size of overall commentary
-  - "under 1 completion token" in prompt not working as good as needed
-- Need to change perspective and personality in the prompts to better fit the 'Doug' persona
-  - Introduce computer colour in prompt context
-    - "You are Doug, playing as {computer_colour}"
-- Commentary should be more randomized
-- Need to experiment with 'Top 3 best moves' context using Stockfish
-  - Or give "Top 3 move sequences" to improve commentary and reduce hallucination
+- Needs better commentary for moves classified as 'good'
+- Work on move context hallucination
+  - Ex. "You captured my rook" when capturing a pawn
+- More context for commentary for moves classified as 'mistake' and 'blunder'
   

@@ -62,6 +62,9 @@ pip install -r requirements.txt
 
 - `soundfile.LibsndfileError: Error opening: File contains data in an unimplemented format`
   - Resolve issue with: `pip install --force-reinstall soundfile`
+- `chess.IllegalMoveError`
+  - This is an issue that stems from a desync between the live board and emulated board
+  - **Working on a fix**
 
 ## Methodology
 ### What led to the creation of Doug?

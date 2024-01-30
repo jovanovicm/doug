@@ -11,11 +11,15 @@ Doug does not hold back on the trash talk, and will make you regret every bad mo
 
 ### A Video of Doug in Action
 >[!TIP]
->Make sure to unmute the video before playing it! (the cool music is not part of Doug)
-
-https://github.com/jovanovicm/doug/assets/71355061/65112c92-399d-45eb-a4d0-42687573facd
+>Make sure to unmute the video before playing it!
 
 
+
+https://github.com/jovanovicm/doug/assets/71355061/e5703301-31fc-4cbf-a420-947eede0f1ff
+
+
+
+**The music is not part of Doug** - The song is **`YourLove - Logic1000`**
 
 
 

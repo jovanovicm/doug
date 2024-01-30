@@ -7,6 +7,10 @@ import chess.engine
 from openai import OpenAI
 from config import LICHESS_API_TOKEN, OPENAI_API_TOKEN
 import pygame
+import time
+import os
+
+timeout_start = None
 
 # AUDIO #
 # Thanks to https://github.com/ggoonnzzaallo/llm_experiments for the streamed text + audio solution
@@ -28,8 +32,9 @@ emulated_board = chess.Board()
 engine = chess.engine.SimpleEngine.popen_uci('stockfish/stockfish-windows-x86-64-avx2.exe')
 
 recent_moves = [] # Last 3 moves played on the board
-last_player_move = [] # Last move played by the player
-player_colour = '' 
+last_player_move = []
+player_colour = ''
+computer_colour = ''
 previous_score = None # Scoring from Stockfish
 enable_random = False
 
@@ -102,7 +107,7 @@ def play_audio(audio_file_path):
 def generate_text(prompt):
 
     completion = aiclient.chat.completions.create(
-        model="gpt-4-1106-preview",
+        model="gpt-4-turbo-preview",
         messages=[
             {"role": "system", "content": prompt}
         ],
@@ -128,87 +133,122 @@ def generate_text(prompt):
                     sentence = ''
     return sentences
 
-def generate_prompt(board, recent_moves, last_move, move_classification):
+def generate_prompt(board, recent_moves, last_move, move_classification, colour, top_line=None):
 
-    if emulated_board.fullmove_number < 6:
+    if move_classification == 'early':
         prompt = f"Current state of the board: {board}. The last move is {last_move}. The most recent moves are: {', '.join(recent_moves)}." \
+        f"You are playing this chess game as {colour} and are talking to your opponent" \
         """
-        You are a spectator watching the following chess game.
         You reference the most recent moves and the current state of the board to get an understanding of the game, but only talk about the last move.
-        You make small one or two word interjections equal to or less than 1 completion token. 
-        
+        Talk about the moves with natural language; do not talk using chess notations.
+        You make small interjections which resemble expressions of thought like "hmm" or identifying what opening it is.
+        Do not talk about the analysis of the position, what the thought behind a move is, or what a move is managing to do.
+        Keep your remark under 4 words and under 1 completion token.
         """
     
     elif move_classification == 'blunder':
         prompt = f"Current state of the board: {board}. The last move is {last_move}. The most recent moves are: {', '.join(recent_moves)}." \
+        f"You are playing this chess game as {colour} and are talking to your opponent" \
         """
-        You are a spectator watching the following chess game.
-        You reference the most recent moves and the current state of the board to get an understanding of the game, but only talk about the last move.
-        You have just witnessed a blunder. Make big scene about it with a snarky, funny, and/or rude comment equal to or under 1 completion token.
+        You reference the most recent moves and the current state of the board to get an understanding of the game.
+        Talk about the moves with natural language; do not talk using chess notations.
+        You have just witnessed your opponent make a blunder. 
+        """ \
+        f"You reference the top move to understand why it is a blunder; top move for you: {top_line}" \
+        """
+        Make a big scene about it with a snarky and rude comment using deadpan humour equal to or under 20 words.
+        """
+
+    
+    elif move_classification == 'mistake':
+        prompt = f"Current state of the board: {board}. The last move is {last_move}. The most recent moves are: {', '.join(recent_moves)}." \
+        f"You are playing this chess game as {colour} and are talking to your opponent" \
+        """
+        You reference the most recent moves and the current state of the board to get an understanding of the game.
+        Talk about the moves with natural language; do not talk using chess notations.
+        You have just witnessed your opponent make a mistake. 
+        """ \
+        f"You reference the top move to understand why it is a mistake; top move for you: {top_line}" \
+        """
+        Make a condensending remark about it which is equal to or under 15 words.
         """
 
     elif move_classification == 'normal':
         prompt = f"Current state of the board: {board}. The last move is {last_move}. The most recent moves are: {', '.join(recent_moves)}." \
+        f"You are playing this chess game as {colour} and are talking to your opponent" \
         """
-        You are a spectator watching the following chess game.
         You reference the most recent moves and the current state of the board to get an understanding of the game, but only talk about the last move.
-        You have just witnessed a normal move. Make a interjection which is one or two words which displays how uninteresting and obvious it is that is equal to or under 1 completion token.
+        Talk about the moves with natural language; do not talk using chess notations.
+        You have just witnessed your opponent make a normal move.
+        Make a condensending interjection which is up to 10 words which vocalizes thinking about what your opponent will do, or thinking to yourself.
         """
 
-    else:
+    elif move_classification == 'good':
         prompt = f"Current state of the board: {board}. The last move is {last_move}. The most recent moves are: {', '.join(recent_moves)}." \
+        f"You are playing this chess game as {colour} and talking to your opponent" \
         """
-        You are a spectator watching the following chess game.
-        You are actively disgusted at how the players a playing. You continously say how you could be playing better.
-        You make short, nasty, witty, and funny remarks about the position.
-        You reference the most recent moves and the current state of the board to get an understanding of the game, but only talk about the last move and its relation to the previous move, if needed.
-        Make a remark equal to or less than 1 completion token. 
+        You reference the most recent moves and the current state of the board to get an understanding of the game, but only talk about the last move.
+        Talk about the moves with natural language; do not talk using chess notations.
+        You have just witnessed your opponent make a good move.
+        You think to yourself about how you knew that move was coming.
+        You make a funny remark with a slightly worried tone about the position equal to or under 20 words.
         """
+
     return prompt
 
-def commentate(mode, random_chance = None):
-    # Determine if we should generate text based on move classification and fullmove number
-    enable_random = move_classification == 'normal' or emulated_board.fullmove_number < 6
+prompt_probabilities = {
+    'early': 0.20,
+    'blunder': 1,  
+    'mistake': 1,
+    'good': 0.75,     
+    'normal': 0.35    
+}
 
-    # Determine if we should generate text based on random chance
-    enable_generate = not enable_random or (enable_random and random.random() < random_chance)
+def commentate(mode, move_classification):
+    # Check if it's the player's turn to generate a response
+    if (mode == 'white' and not emulated_board.turn) or (mode == 'black' and emulated_board.turn):
+        if random.random() < prompt_probabilities.get(move_classification):
+            prompt = generate_prompt(emulated_board, recent_moves, san_move, move_classification, computer_colour, top_lines_str)
+            response = generate_text(prompt)
+            print(response)
 
-    prompt = generate_prompt(emulated_board, recent_moves, san_move, move_classification)
-
-    # Generate on white's turn
-    if mode == 'white' and not emulated_board.turn and enable_generate:
-        response = generate_text(prompt)
-        print(response)
-
-    # Generate on black's turn
-    elif mode == 'black' and emulated_board.turn and enable_generate:
-        response = generate_text(prompt)
-        print(response)
-    
 
 # To be used alongside Stockfish to evaulate moves, since ChatGPT kinda sucks at it
 def classify_move(change_in_evaluation):
-    if change_in_evaluation <= -200:
-        return 'blunder'
+    if emulated_board.fullmove_number < 6:
+        classification = 'early'
+        if change_in_evaluation <= -200:
+            classification = 'blunder'
+    elif change_in_evaluation <= -200:
+        classification = 'blunder'
     elif -200 < change_in_evaluation <= -100:
         return 'mistake'
     elif change_in_evaluation >= 200:
-        return 'good'
+        classification =  'good'
     else:
-        return 'normal'
+        classification = 'normal'
     
-def get_top_3_moves(board):
-    with engine.analysis(board, multipv=3) as analysis:
-        best_moves_san = []
-        for info in analysis:
-            if len(best_moves_san) >= 3:
-                break
-            if info.get("pv"):
-                move_san = board.san(info["pv"][0])
-                best_moves_san.append(move_san)
-    return best_moves_san
+    return classification
+    
+
+def get_top_line(board, engine, depth):
+    limit = chess.engine.Limit(depth=depth)
+    info = engine.analyse(board, limit)
+
+    # Extract the principal variation (best line)
+    if "pv" in info and len(info["pv"]) >= depth:
+        line_san = ' '.join([board.san(move) for move in info["pv"][:depth]])
+        formatted_line = f"Best line: {line_san}"
+        return formatted_line
+
+    return "No line available"
 
 while True:
+    # Timeout
+    if timeout_start is not None and (time.time() - timeout_start) > 120:
+        print("No new game started within 2 minutes. Exiting.")
+        break
+
     # Check for ongoing games
     ongoing_games = client.games.get_ongoing()
     if ongoing_games:
@@ -221,51 +261,81 @@ while True:
             if 'white' in game_state:
                 if 'aiLevel' in game_state['white']:
                     player_colour = 'black'
+                    computer_colour = 'white'
                 else:
                     player_colour = 'white'
+                    computer_colour = 'black'
 
-            if game_state.get('status') in ['resign', 'mate', 'stalemate']:
+            if game_state['type'] == 'gameFull':
+                moves = game_state['state']['moves'].split()
+            elif game_state['type'] == 'gameState':
+                moves = game_state['moves'].split()
+
+            if game_state.get('status') == 'resign': 
                 print('Game done.')
                 emulated_board.reset()
-                break
+                timeout_start = time.time()
+                break    
 
-            else:
-                if game_state['type'] == 'gameFull':
-                    moves = game_state['state']['moves'].split()
-                elif game_state['type'] == 'gameState':
-                    moves = game_state['moves'].split()
+            if moves:
+                last_move = moves[-1]
 
-                if moves:
-                    last_move = moves[-1]
+                # Convert UCI to SAN before making the move
+                san_move = emulated_board.san(chess.Move.from_uci(last_move))
+                                
+                recent_moves.append(san_move)
 
-                    # Convert UCI to SAN before making the move
-                    san_move = emulated_board.san(chess.Move.from_uci(last_move))
-                                    
-                    recent_moves.append(san_move)
+                # Only referencing last 3 moves for recent moves
+                if len(recent_moves) > 3:
+                    recent_moves.pop(0)
 
-                    # Only referencing last 3 moves for recent moves
-                    if len(recent_moves) > 3:
-                        recent_moves.pop(0)
+                # Evaluate the position before making the move
+                if previous_score is None:
+                    analysis_info = engine.analyse(emulated_board, chess.engine.Limit(depth=5))
+                    previous_score = analysis_info.get("score")
 
-                    # Evaluate the position before making the move
-                    if previous_score is None:
-                        analysis_info = engine.analyse(emulated_board, chess.engine.Limit(depth=5))
-                        previous_score = analysis_info.get("score")
+                emulated_board.push_uci(last_move)
 
-                    emulated_board.push_uci(last_move)
+                # Evaluate the position after making the move
+                new_analysis_info = engine.analyse(emulated_board, chess.engine.Limit(depth=5))
+                new_score = new_analysis_info.get("score")
 
-                    # Evaluate the position after making the move
-                    new_analysis_info = engine.analyse(emulated_board, chess.engine.Limit(depth=5))
-                    new_score = new_analysis_info.get("score")
+                # Evaluating moves based off of change in centipawn score using Stockfish
+                if emulated_board.turn:  # White turn
+                    change_in_evaluation = previous_score.black().score(mate_score=-10000) - new_score.black().score(mate_score=-10000)
+                    change_in_evaluation *= -1
+                else:  # Black turn
+                    change_in_evaluation = new_score.white().score(mate_score=10000) - previous_score.white().score(mate_score=10000)
 
-                    # Evaluating moves based off of change in centipawn score using Stockfish
-                    if emulated_board.turn:  # White turn
-                        change_in_evaluation = previous_score.black().score(mate_score=-10000) - new_score.black().score(mate_score=-10000)
-                        change_in_evaluation *= -1
-                    else:  # Black turn
-                         change_in_evaluation = new_score.white().score(mate_score=10000) - previous_score.white().score(mate_score=10000)
+                move_classification = classify_move(change_in_evaluation)
+                previous_score = new_score
 
-                    move_classification = classify_move(change_in_evaluation)
-                    previous_score = new_score
+                print(move_classification)
 
-                    commentate(player_colour, 0.5)
+                top_lines_str = ''
+                if move_classification in ['blunder','mistake']:
+                    top_lines_str = get_top_line(emulated_board, engine, depth=2)
+
+                commentate(player_colour, move_classification)
+
+                if game_state.get('status') in ['mate', 'stalemate']:
+                    print('Game done.')
+                    emulated_board.reset()
+                    timeout_start = time.time()
+                    break
+
+def cleanup_queues():
+    audio_generation_queue.join()
+    audio_generation_queue.put(None) 
+    audio_playback_queue.join() 
+    audio_playback_queue.put(None) 
+
+cleanup_queues()
+
+audio_generation_thread.join()
+audio_playback_thread.join()      
+
+pygame.mixer.quit()
+
+os._exit(1)
+

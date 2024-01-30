@@ -11,7 +11,7 @@ Doug does not hold back on the trash talk, and will make you regret every bad mo
 
 ### A Video of Doug in Action
 >[!TIP]
->Make sure to unmute the video before playing! 
+>Make sure to unmute the video before playing it! (the cool music is not part of Doug)
 
 https://github.com/jovanovicm/doug/assets/71355061/65112c92-399d-45eb-a4d0-42687573facd
 

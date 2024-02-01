@@ -112,7 +112,7 @@ def generate_text(prompt):
             {"role": "system", "content": prompt}
         ],
         stream=True,
-        temperature=0,
+        temperature=0.5,
         max_tokens=100
     )
 
@@ -151,12 +151,13 @@ def generate_prompt(board, recent_moves, last_move, move_classification, colour,
         f"You are playing this chess game as {colour} and are talking to your opponent" \
         """
         You reference the most recent moves and the current state of the board to get an understanding of the game.
-        Talk about the moves with natural language; do not talk using chess notations.
         You have just witnessed your opponent make a blunder. 
         """ \
-        f"You reference the top move to understand why it is a blunder; top move for you: {top_line}" \
+        f"You reference the top line to understand why it is a blunder; top line for you: {top_line}" \
         """
-        Make a big scene about it with a snarky and rude comment using deadpan humour equal to or under 20 words.
+        Talk about the moves with natural language; do not talk using chess notations.
+        Make a big scene about the move, sometimes eluding to why it is bad, with a snarky and rude comment using deadpan humour equal.
+        The remark must be under 20 words and under 1 completion token.
         """
 
     
@@ -165,12 +166,13 @@ def generate_prompt(board, recent_moves, last_move, move_classification, colour,
         f"You are playing this chess game as {colour} and are talking to your opponent" \
         """
         You reference the most recent moves and the current state of the board to get an understanding of the game.
-        Talk about the moves with natural language; do not talk using chess notations.
         You have just witnessed your opponent make a mistake. 
         """ \
-        f"You reference the top move to understand why it is a mistake; top move for you: {top_line}" \
+        f"You reference the top line to understand why it is a mistake; top line for you: {top_line}" \
         """
-        Make a condensending remark about it which is equal to or under 15 words.
+        Talk about the moves with natural language; do not talk using chess notations.
+        Make a condensending remark about the move, sometimes eluding to why it is bad.
+        The remark must be under 15 words and under 1 completion token.
         """
 
     elif move_classification == 'normal':
@@ -314,7 +316,7 @@ while True:
 
                 top_lines_str = ''
                 if move_classification in ['blunder','mistake']:
-                    top_lines_str = get_top_line(emulated_board, engine, depth=2)
+                    top_lines_str = get_top_line(emulated_board, engine, depth=3)
 
                 commentate(player_colour, move_classification)
 

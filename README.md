@@ -9,6 +9,20 @@ He has become famous for his vocal style of play across the board.
 
 Doug does not hold back on the trash talk, and will make you regret every bad move you make.
 
+### A Video of Doug in Action
+>[!TIP]
+>Make sure to unmute the video before playing it!
+
+
+
+https://github.com/jovanovicm/doug/assets/71355061/e5703301-31fc-4cbf-a420-947eede0f1ff
+
+
+
+**The music is not part of Doug** - The song is **`YourLove - Logic1000`**
+
+
+
 ### Table of Contents
 - **[How to Use Doug](#how-to-use)**
   - [Prerequisites](#prerequisites)
@@ -48,12 +62,13 @@ pip install -r requirements.txt
 
 - `soundfile.LibsndfileError: Error opening: File contains data in an unimplemented format`
   - Resolve issue with: `pip install --force-reinstall soundfile`
+- `chess.IllegalMoveError`
+  - This is an issue that stems from a desync between the live board and emulated board
+  - **Working on a fix**
 
 ## Methodology
 ### What led to the creation of Doug?
 I wanted to create something that I would enjoy using while also investigating the uses of Generative AI. I also used this project as an opportunity to improve my Python skills and overall code development ability.
-
-ChatGPT helped a lot...
 
 ### How does Doug work?
 Doug uses the Lichess API to get real-time information about your chess games. It then feeds this information into a prompt used by the OpenAI API to generate a text-based analysis of the game. 
@@ -106,15 +121,8 @@ Stockfish is also integrated alongside the game to give proper game analysis, an
 >Since OpenAI API calls do not reference previous API calls for context, prompts must convey the momentum of the game
 
 ## Pending Work and Improvements
-- Need to upload video of Doug in a game
-- Doug says 'Typical' too much for moves classified as 'normal'
-- Needs commentary for moves classified as 'good'
-- Need to reduce size of overall commentary
-  - "under 1 completion token" in prompt not working as good as needed
-- Need to change perspective and personality in the prompts to better fit the 'Doug' persona
-  - Introduce computer colour in prompt context
-    - "You are Doug, playing as {computer_colour}"
-- Commentary should be more randomized
-- Need to experiment with 'Top 3 best moves' context using Stockfish
-  - Or give "Top 3 move sequences" to improve commentary and reduce hallucination
+- Needs better commentary for moves classified as 'good'
+- Work on move context hallucination
+  - Ex. "You captured my rook" when capturing a pawn
+- More context for commentary for moves classified as 'mistake' and 'blunder'
   

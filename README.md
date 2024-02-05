@@ -34,6 +34,7 @@ https://github.com/jovanovicm/doug/assets/71355061/e5703301-31fc-4cbf-a420-947ee
   - [Challenges and Solutions](#challenges-and-solutions)
     - [Issues with the Lichess API](#issues-with-the-lichess-api)
     - [Introducing more context](#introducing-more-context)
+    - [Speech Generation](#speech-generation)
 - **[Pending Work and Improvements](#pending-work-and-improvements)**
 
 ## How to Use
@@ -119,6 +120,9 @@ Stockfish is also integrated alongside the game to give proper game analysis, an
 
 >[!NOTE]
 >Since OpenAI API calls do not reference previous API calls for context, prompts must convey the momentum of the game
+
+#### Speech Generation
+To generate speech, a solution created by [ggoonnzzaallo](https://github.com/ggoonnzzaallo/llm_experiments) was used which enabled real-time responses using a text-to-speech streaming technique. 
 
 ## Pending Work and Improvements
 - Needs better commentary for moves classified as 'good'

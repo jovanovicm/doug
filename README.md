@@ -125,4 +125,5 @@ Stockfish is also integrated alongside the game to give proper game analysis, an
 - Work on move context hallucination
   - Ex. "You captured my rook" when capturing a pawn
 - More context for commentary for moves classified as 'mistake' and 'blunder'
+- Adjusting humour to be less cringey
   

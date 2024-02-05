@@ -84,9 +84,9 @@ Part of the information given by the Lichess API is the sequence of moves made i
 >
 >`e2e4 c7c6 f2f4 d7d5 e4e5 c8f5 d2d4 e7e6 g1f3 c6c5 f1b5 b8d7`
 
-For example, `e2e4` means that the piece previously on e2 has moved to e4. Since this notation lacks information about the piece that is being moved, ChatGPT will start hallucinating after the first few opening moves have been made.
+For example, `e2e4` means that the piece previously on e2 has moved to e4. Since this notation lacks information about the piece that is being moved, GPT-4 will start hallucinating after the first few opening moves have been made.
 
-Another issue with referencing this sequence of moves is that it becomes very long in the end game, which increases the length of the prompt, therefore increasing the amount of time needed to get a response from the OpenAI API.
+Another issue with referencing this sequence of moves is that it becomes very long in the end game, which increases the length of the prompt, therefore increasing the amount of time needed to get a response from the OpenAI API. Chunking the data to only include the most recent moves also led GPT-4 to hallucinate more.
 
 #### Introducing more context
 To help out with the issue of hallucinations, we must introduce more context related to the moves made, and the state of the game. To do this, I use the `chess` library for python to emulate the chess game being played on Lichess within our code. Using this library, we can convert the LAN moves to a more informative notation, the Short Algebraic Notation (SAN), which includes the context of the piece being moved and what it is doing (ex. Checks, Captures, Castling). 

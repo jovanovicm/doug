@@ -77,7 +77,7 @@ This text-based analysis is then streamed to a text-to-speech model, again using
 
 ### Challenges and Solutions
 Since ChatGPT is known to hallucinate, [especially while playing and interpreting chess games](https://twitter.com/JoINrbs/status/1624351822621315072?lang=en), you need to provide a lot of context within each prompt for an appropriate analysis to happen.
-
+***
 #### Issues with the Lichess API
 Part of the information given by the Lichess API is the sequence of moves made in your game, which comes in the form of Long Algebraic Notation (LAN). This notation, like all notations, makes use of the grid system on a chess board and identifies the starting and ending squares of the piece moved.
 
@@ -88,7 +88,7 @@ Part of the information given by the Lichess API is the sequence of moves made i
 For example, `e2e4` means that the piece previously on e2 has moved to e4. Since this notation lacks information about the piece that is being moved, GPT-4 will start hallucinating after the first few opening moves have been made.
 
 Another issue with referencing this sequence of moves is that it becomes very long in the end game, which increases the length of the prompt, therefore increasing the amount of time needed to get a response from the OpenAI API. Chunking the data to only include the most recent moves also led GPT-4 to hallucinate more.
-
+***
 #### Introducing more context
 To help out with the issue of hallucinations, we must introduce more context related to the moves made, and the state of the game. To do this, I use the `chess` library for python to emulate the chess game being played on Lichess within our code. Using this library, we can convert the LAN moves to a more informative notation, the Short Algebraic Notation (SAN), which includes the context of the piece being moved and what it is doing (ex. Checks, Captures, Castling). 
 
@@ -120,8 +120,10 @@ Stockfish is also integrated alongside the game to give proper game analysis, an
 
 >[!NOTE]
 >Since OpenAI API calls do not reference previous API calls for context, prompts must convey the momentum of the game
-
+***
 #### Speech Generation
+In an effort to reduce the time and awkward slience between something happening on the board and Doug speaking, I utilized a technique to stream the output of the text and speech models which could reduce response time by 56%.
+
 To generate speech, a solution created by [ggoonnzzaallo](https://github.com/ggoonnzzaallo/llm_experiments) was used which enabled real-time responses using a text-to-speech streaming technique. 
 
 ## Pending Work and Improvements

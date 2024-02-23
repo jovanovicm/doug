@@ -56,7 +56,11 @@ pip install -r requirements.txt
 >[!NOTE]
 >If you are not using Windows, you must [install a different version of Stockfish](https://stockfishchess.org/download/) and replace the folder
 
-2. Change the name of **config_template.py** to **config.py** and populate the variables with your API keys
+2. Create a **.env** file and populate the variables with your API keys using the following template:
+```
+LICHESS_API_TOKEN=
+OPENAI_API_TOKEN=
+```
 3. Run **doug.py** before playing a game
 
 ### Known Issues

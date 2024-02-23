@@ -5,11 +5,18 @@ import random
 import chess
 import chess.engine
 from openai import OpenAI
-from config import LICHESS_API_TOKEN, OPENAI_API_TOKEN
 import pygame
 import time
 import os
+from dotenv import load_dotenv
 
+# API KEYS #
+load_dotenv()
+
+LICHESS_API_TOKEN = os.getenv('LICHESS_API_TOKEN')
+OPENAI_API_TOKEN = os.getenv('OPENAI_API_TOKEN')
+
+# PROGRAM TIMEOUT #
 timeout_start = None
 
 # AUDIO #

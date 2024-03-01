@@ -83,7 +83,7 @@ This text-based analysis is then streamed to a text-to-speech model, again using
 Since ChatGPT is known to hallucinate, [especially while playing and interpreting chess games](https://twitter.com/JoINrbs/status/1624351822621315072?lang=en), you need to provide a lot of context within each prompt for an appropriate analysis to happen.
 ***
 #### Issues with the Lichess API
-Part of the information given by the Lichess API is the sequence of moves made in your game, which comes in the form of Long Algebraic Notation (LAN). This notation, like all notations, makes use of the grid system on a chess board and identifies the starting and ending squares of the piece moved.
+Part of the information given by the Lichess API is the sequence of moves made in your game, which comes in the form of Long Algebraic Notation (LAN). This notation makes use of the grid system on a chess board and identifies the starting and ending squares of the piece moved.
 
 >**Example of LAN**: 
 >

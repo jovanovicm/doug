@@ -136,4 +136,8 @@ To generate speech, a solution created by [ggoonnzzaallo](https://github.com/ggo
   - Ex. "You captured my rook" when capturing a pawn
 - More context for commentary for moves classified as 'mistake' and 'blunder'
 - Adjusting humour to be less cringey
+- Commentary for checkmates
+- Commentary when transitioning between games
+  - Ex. "You won't win this time", etc.
+- Ability to start in the middle of a game with commentary
   
